@@ -1,0 +1,90 @@
+import dataclasses as dc
+import tkinter as tk
+from tkinter import ttk
+
+import typing as tp
+
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
+
+from cheeks import Cheeks3D
+
+
+class CheeksGUI(Cheeks3D):
+    def __init__(self):
+        super().__init__()
+        if tp.TYPE_CHECKING:
+            assert dc.is_dataclass(self),\
+                f"CheeksGUI inherits from {super()} which must be a dataclass"
+        print(*dc.fields(self), sep='\n')
+        self.root = self.tk_init()
+        self.fig, self.ax = self.mpl_init()
+
+        self.sliders = [
+            self.slider_init(attr.name)
+            for attr in dc.fields(self)
+        ]
+        self.canvas = self.canvas_init()  # needed to display sliders
+        self.root.mainloop()
+
+    def update_cheek_attr(self, attr_name: str, value: float, redraw: bool = True):
+        if attr_name not in [f.name for f in dc.fields(self)]:
+            raise ValueError(f"{attr_name} is not an attribute of Cheeks3D instances that you can edit")
+        self.__setattr__(attr_name, value)
+        self.update_Z()
+        if redraw:
+            self.draw(self.ax)
+            try:
+                self.canvas.draw_idle()
+            except AttributeError:
+                # we can ignore this because it only happens at slider init
+                print("todo add a check that we are in slider_init")
+                pass
+
+
+    def tk_init(self):
+        """
+        Initializes and returns root, a Tkinter GUI
+        """
+        root = tk.Tk()
+        root.title("Butt3D-gui")
+        root.geometry("800x600")
+        return root
+
+    def mpl_init(self):
+        """
+        Initializes and returns fig, ax, Matplotlib Figure and 3D Axes
+        """
+        fig = Figure(figsize=(12, 9), dpi=100)
+        ax = fig.add_subplot(111, projection="3d")
+        ax.set_title("A pair of cheeks in dimension n=3")
+        return fig, ax
+
+    def canvas_init(self):
+        """
+        Returns the canvas object that embeds the Matplotlib figure `fig` in the Tkinter instance `root`
+        """
+        canvas = FigureCanvasTkAgg(self.fig, master=self.root)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        return canvas
+
+    def slider_init(self, attr_name: str):
+        slider_frame = ttk.Frame(self.root)
+        slider_frame.pack(side=tk.BOTTOM, fill=tk.X, padx=10, pady=10)
+
+        ttk.Label(slider_frame, text=f"{attr_name.title()}:").pack(side=tk.LEFT)
+        slider = ttk.Scale(
+            slider_frame,
+            from_=0.01,
+            to=1,
+            orient=tk.HORIZONTAL,
+            command=lambda val: self.update_cheek_attr(attr_name, float(val), redraw=True)
+        )
+        slider.set(1.0)
+        slider.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        return slider
+
+
+if __name__ == "__main__":
+    CheeksGUI()
