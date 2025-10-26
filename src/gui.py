@@ -21,7 +21,7 @@ class CheeksGUI(Cheeks3D):
         self.fig, self.ax = self.mpl_init()
 
         self.sliders = [
-            self.slider_init(attr.name)
+            self.slider_init(attr)
             for attr in dc.fields(self)
         ]
         self.canvas = self.canvas_init()  # needed to display sliders
@@ -55,7 +55,7 @@ class CheeksGUI(Cheeks3D):
         """
         Initializes and returns fig, ax, Matplotlib Figure and 3D Axes
         """
-        fig = Figure(figsize=(12, 9), dpi=100)
+        fig = Figure(figsize=(9, 9), dpi=100)
         ax = fig.add_subplot(111, projection="3d")
         ax.set_title("A pair of cheeks in dimension n=3")
         return fig, ax
@@ -69,19 +69,19 @@ class CheeksGUI(Cheeks3D):
         canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         return canvas
 
-    def slider_init(self, attr_name: str):
+    def slider_init(self, attr: dc.Field):
         slider_frame = ttk.Frame(self.root)
         slider_frame.pack(side=tk.BOTTOM, fill=tk.X, padx=10, pady=10)
-
-        ttk.Label(slider_frame, text=f"{attr_name.title()}:").pack(side=tk.LEFT)
+        attr_bounds = getattr(self, f"{attr.name}_bounds")
+        ttk.Label(slider_frame, text=f"{attr.name.title()}:").pack(side=tk.LEFT)
         slider = ttk.Scale(
             slider_frame,
-            from_=0.01,
-            to=1,
+            from_=attr_bounds[0],
+            to=attr_bounds[1],
             orient=tk.HORIZONTAL,
-            command=lambda val: self.update_cheek_attr(attr_name, float(val), redraw=True)
+            command=lambda val: self.update_cheek_attr(attr.name, float(val), redraw=True)
         )
-        slider.set(1.0)
+        slider.set(attr.default)
         slider.pack(side=tk.LEFT, fill=tk.X, expand=True)
         return slider
 
