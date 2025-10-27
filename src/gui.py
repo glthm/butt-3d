@@ -95,7 +95,13 @@ def run_gui_class(cheeks_class):
     return make_gui_class(cheeks_class)()
 
 def run_gui(cheeks_model: str):
-    return run_gui_class(vars(cheeks)[f"Cheeks3D_{cheeks_model.lower()}"])
+    key = f"Cheeks3D_{cheeks_model.lower()}"
+    if key not in (vc := vars(cheeks)):
+        raise KeyError(
+            f"{key} was not found in the declared variables of the `cheeks.py` file. Available parameters for this "
+            f"function are: {', '.join([k.removeprefix("Cheeks3D_") for k in vc if k.startswith("Cheeks3D_")])}"
+        )
+    return run_gui_class(vc[key])
 
 
 if __name__ == "__main__":

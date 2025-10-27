@@ -65,7 +65,7 @@ class Cheeks3D_gpap(Cheeks3Dcore):
     spread: float = 0.8
     width: float = 0.3
     rounding: float = 0.7
-    mu: float = 1
+    mu: float = 2.7
     sigma: float = 1
 
     # X/Y grid params
@@ -80,7 +80,7 @@ class Cheeks3D_gpap(Cheeks3Dcore):
     spread_bounds: tp.ClassVar[tuple[float, float]] = (0, 3)
     width_bounds: tp.ClassVar[tuple[float, float]] = (0, 3)
     rounding_bounds: tp.ClassVar[tuple[float, float]] = (0, 3)
-    mu_bounds: tp.ClassVar[tuple[float, float]] = (0, 3)
+    mu_bounds: tp.ClassVar[tuple[float, float]] = (0, 7)
     sigma_bounds: tp.ClassVar[tuple[float, float]] = (0, 3)
 
 
@@ -90,14 +90,13 @@ class Cheeks3D_gpap(Cheeks3Dcore):
         """
         Z1 = -lognorm.pdf(
             (self.Y + self.width) ** 2 + self.X ** 2,
-            s=self.sigma, scale=np.exp(self.mu)
+            s=self.sigma, scale=self.mu
         ) * np.exp(self.spread * (self.Y + self.rounding) ** 2)
         Z2 = -lognorm.pdf(
             (self.Y - self.width) ** 2 + self.X ** 2,
-            s=self.sigma, scale=np.exp(self.mu)
+            s=self.sigma, scale=self.mu
         ) * np.exp(self.spread * (self.Y - self.rounding) ** 2)
         self.Z = np.max([Z1, Z2, -self.cutoff * np.ones_like(Z1)], axis=0)
-
 
 
 
