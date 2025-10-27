@@ -34,3 +34,9 @@ class TestAttrsCheeks3D:
         attr_bounds_val = getattr(cls, f"{attr.name}_bounds")
         assert attr_bounds_val[0] <= attr.default <= attr_bounds_val[1],\
             f"{attr.name} default value must be between the bound given by {attr.name}_bounds."
+
+
+class TestCheeks3Dcore:
+    def test_warn_on_inst(self):
+        with pytest.warns(UserWarning, match="abstract"):
+            Cheeks3Dcore(10, 0, 1, 0, 1)

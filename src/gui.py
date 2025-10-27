@@ -7,10 +7,10 @@ import typing as tp
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
-from cheeks import *
+import cheeks
 
 
-class CheeksGuiCore(Cheeks3Dcore):
+class CheeksGuiCore(cheeks.Cheeks3Dcore):
     def __post_init__(self, *args, **kwargs):
         super().__post_init__(*args, **kwargs)
         if tp.TYPE_CHECKING:
@@ -91,8 +91,12 @@ class CheeksGuiCore(Cheeks3Dcore):
 def make_gui_class(cheeks_class):
     return type(f"CheeksGui_{cheeks_class.__name__.removeprefix("Cheeks3D_")}", (CheeksGuiCore, cheeks_class), {})
 
-def run_gui(cheeks_class):
+def run_gui_class(cheeks_class):
     return make_gui_class(cheeks_class)()
 
+def run_gui(cheeks_model: str):
+    return run_gui_class(vars(cheeks)[f"Cheeks3D_{cheeks_model.lower()}"])
+
+
 if __name__ == "__main__":
-    run_gui(Cheeks3D_gpap)
+    run_gui('gpap')

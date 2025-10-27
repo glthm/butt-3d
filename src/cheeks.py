@@ -35,7 +35,9 @@ class Cheeks3Dcore:
         Sets and returns the array of Z values using the set attributes of `self`.
         """
         warnings.warn(
-            "Calling Cheeks3Dcore.update_Z returns an empty array, thi method is meant to be overridden in subclasses"
+            "Calling Cheeks3Dcore.update_Z returns an empty array, this method is meant to be overridden in subclasses"
+            "\n(Cheeks3Dcore is meant to be an abstract method)",
+
         )
         self.Z = np.empty_like(self.X)
 
@@ -95,6 +97,9 @@ class Cheeks3D_gpap(Cheeks3Dcore):
             s=self.sigma, scale=np.exp(self.mu)
         ) * np.exp(self.spread * (self.Y - self.rounding) ** 2)
         self.Z = np.max([Z1, Z2, -self.cutoff * np.ones_like(Z1)], axis=0)
+
+
+
 
 
 # TODO add woods parametrization, MAYBE ALSO mikuszefski
