@@ -1,8 +1,8 @@
 import pytest
-from src.cheeks import Cheeks3D
+from src.cheeks import Cheeks3D_gpap
 import dataclasses as dc
 
-cls = Cheeks3D
+cls = Cheeks3D_gpap
 inst = cls()
 
 @pytest.mark.parametrize("attr", dc.fields(cls))

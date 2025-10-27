@@ -7,12 +7,12 @@ import typing as tp
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
-from cheeks import Cheeks3D
+from cheeks import *
 
 
-class CheeksGUI(Cheeks3D):
-    def __init__(self):
-        super().__init__()
+class CheeksGuiCore(Cheeks3Dcore):
+    def __post_init__(self, *args, **kwargs):
+        super().__post_init__(*args, **kwargs)
         if tp.TYPE_CHECKING:
             assert dc.is_dataclass(self),\
                 f"CheeksGUI inherits from {super()} which must be a dataclass"
@@ -28,6 +28,9 @@ class CheeksGUI(Cheeks3D):
         self.root.mainloop()
 
     def update_cheek_attr(self, attr_name: str, value: float, redraw: bool = True):
+        if tp.TYPE_CHECKING:
+            assert dc.is_dataclass(self),\
+                f"CheeksGUI inherits from {super()} which must be a dataclass"
         if attr_name not in [f.name for f in dc.fields(self)]:
             raise ValueError(f"{attr_name} is not an attribute of Cheeks3D instances that you can edit")
         self.__setattr__(attr_name, value)
@@ -40,7 +43,6 @@ class CheeksGUI(Cheeks3D):
                 # we can ignore this because it only happens at slider init
                 print("todo add a check that we are in slider_init")
                 pass
-
 
     def tk_init(self):
         """
@@ -57,7 +59,7 @@ class CheeksGUI(Cheeks3D):
         """
         fig = Figure(figsize=(9, 9), dpi=100)
         ax = fig.add_subplot(111, projection="3d")
-        ax.set_title("A pair of cheeks in dimension n=3")
+        ax.set_title("A pair of buttcheeks in dimension n=3")
         return fig, ax
 
     def canvas_init(self):
@@ -86,5 +88,11 @@ class CheeksGUI(Cheeks3D):
         return slider
 
 
+def make_gui_class(cheeks_class):
+    return type(f"CheeksGui_{cheeks_class.__name__.removeprefix("Cheeks3D_")}", (CheeksGuiCore, cheeks_class), {})
+
+def run_gui(cheeks_class):
+    return make_gui_class(cheeks_class)()
+
 if __name__ == "__main__":
-    CheeksGUI()
+    run_gui(Cheeks3D_gpap)
